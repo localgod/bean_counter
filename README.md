@@ -10,3 +10,7 @@ Script for searching across multiple git repositories.
 # Usage
 
     $ ./find.sh "Url to repo" "Search string"
+
+eg.
+
+    $ ./find.sh https://github.com/Mathmagicians/kumori.git "postgres"

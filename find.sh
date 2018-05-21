@@ -54,4 +54,4 @@ function _search () {
   fi
 }
 
-git_checkout https://github.com/Mathmagicians/kumori.git "postgres"
+git_checkout $@ 
