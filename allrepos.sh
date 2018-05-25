@@ -6,7 +6,7 @@
 #
 
 declare B_PROTOCOL='https' B_HOST='' B_PORT=443 B_BASEURL='' B_USER='' B_PASS=''
-declare CURL_VERBOSE='-s' LIMIT='' USE_HTTP=0 ACTION=0
+declare CURL_VERBOSE='-s' LIMIT=1000 USE_HTTP=0 ACTION=0
 
 # Parse script arguments
 GETOPT=$(getopt -n "$0"  -o '' --long "protocol:,host:,port:,username:,password:,use-http,limit:,help,scan"  -- "$@")
@@ -95,7 +95,7 @@ function usage () {
   exit 0
 }
 
-# Print error message
+# Print error message in red
 function print_error_message () {
   local red='\033[0;31m'
   local nc='\033[0m'
