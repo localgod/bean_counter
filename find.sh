@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 
-function git_checkout () {
+# Search repository for occurence of string
+# Save json formatted file with result.
+function _scan () {
   local repo="$1"
   local search_string="$2"
-  #git clone "${repo}" ./tmp
+  git clone --quiet "${repo}" ./tmp  > /dev/null
   cd ./tmp
-  filename="${repo/https:\/\//}"
-  filename="${filename/.git/}"
-  filename="${filename/./_}"
-  filename="${filename//\//_}"
+  filename="$(echo "${repo}" | awk -F  "/" '/1/ {print $5 "_" $6 }')"
+  filename="${filename/.git/.json}"
+
   local output="$(_search "${repo}" "${search_string}")"
 
   if [[ "${output}" != "" ]]
   then
-    echo "${output}" > "../${filename}.json"
+    echo "${output}" > "../${filename}"
   fi
   cd ..
-  #rm -rf ./tmp
+  rm -rf ./tmp
 }
 
 # Search repository for occurence of string
@@ -54,4 +55,14 @@ function _search () {
   fi
 }
 
-git_checkout $@ 
+# Script entrypoint
+function main () {
+  echo -e "Searching: $(wc -l "$1" | awk '{ print $1}') Repositories\n"
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+      if [[ "${2}" == "" ]] ; then echo -e "Search cannot be empty"; exit 1;
+      else _scan "${line}" "${2}"; fi
+  done < "$1"
+  echo -e "Done\n"
+}
+
+main "$@"
