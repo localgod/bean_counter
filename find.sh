@@ -5,18 +5,30 @@
 function _scan () {
   local repo="$1"
   local search_string="$2"
-  git clone --quiet "${repo}" ./tmp  > /dev/null
-  cd ./tmp
-  filename="$(echo "${repo}" | awk -F  "/" '/1/ {print $5 "_" $6 }')"
-  filename="${filename/.git/.json}"
+  git clone --quiet --depth 1 "${repo}" ./tmp  > /dev/null
 
-  local output="$(_search "${repo}" "${search_string}")"
+  if [[ "$(ls -A ./tmp)" == ".git" ]]; then
+     echo "Empty. Moving on!"
+  else
+    cd ./tmp
+    local filename=''
+    if [[ "$(echo "${repo}" | awk -F  "/" '{print $1}')" == "ssh:" ]]
+    then
+      filename="$(echo "${repo}" | awk -F  "/" '{print $4 "_" $5 }')"
+    else
+      filename="$(echo "${repo}" | awk -F  "/" '{print $5 "_" $6 }')"
+    fi
 
-  if [[ "${output}" != "" ]]
-  then
-    echo "${output}" > "../${filename}"
+    filename="${filename/.git/.json}"
+
+    local output="$(_search "${repo}" "${search_string}")"
+
+    if [[ "${output}" != "" ]]
+    then
+      echo "${output}" > "../${filename}"
+    fi
+    cd ..
   fi
-  cd ..
   rm -rf ./tmp
 }
 
@@ -60,7 +72,10 @@ function main () {
   echo -e "Searching: $(wc -l "$1" | awk '{ print $1}') Repositories\n"
   while IFS='' read -r line || [[ -n "$line" ]]; do
       if [[ "${2}" == "" ]] ; then echo -e "Search cannot be empty"; exit 1;
-      else _scan "${line}" "${2}"; fi
+      else
+        _scan "${line}" "${2}"
+        echo "${line}" >> ./progress.txt
+      fi
   done < "$1"
   echo -e "Done\n"
 }
