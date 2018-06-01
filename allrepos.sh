@@ -42,9 +42,15 @@ done
 
 # Get all Bitbucket projects
 function _get_projects () {
+
   local path='rest/api/1.0/projects'
   local param="limit=${LIMIT}"
   local url="${B_BASEURL}/${path}?${param}"
+
+#  echo "${url}"
+#  exit 1
+
+
   local projects=$(curl ${CURL_VERBOSE} -u ${B_USER}:${B_PASS} ${url} | jq -r '.values[] .key')
   echo "${projects}"
 }
@@ -70,7 +76,7 @@ function scan () {
       if [[ "${USE_HTTP}" == "1" ]] ; then
         output="${output}$(printf "%s://%s@%s:%s/scm/%s/%s.git" "${B_PROTOCOL}" "${B_USER}:${B_PASS}" "${B_HOST}" "${B_PORT}" "${i,,}" "${j}")\n"
       else
-        output="${output}$(printf "%s://git@%s:%s/scm/%s/%s.git" "ssh" "${B_HOST}" "7999" "${i,,}" "${j}")\n"
+        output="${output}$(printf "%s://git@%s:%s/%s/%s.git" "ssh" "${B_HOST}" "7999" "${i,,}" "${j}")\n"
       fi
     done
   done
